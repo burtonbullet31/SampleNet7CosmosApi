@@ -397,4 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-SampleNet7CosmosApi/.idea/.idea.SampleNet7CosmosApi/.idea/
+.idea/
