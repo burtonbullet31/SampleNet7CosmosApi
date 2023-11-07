@@ -1,6 +1,8 @@
-﻿namespace SampleNet7CosmosApi_Old.Models;
+﻿using Newtonsoft.Json;
+
+namespace SampleNet7CosmosApi.Models;
 
 public class SedanModel: BaseVehicleModel
 {
-    public bool AllWheelDrive { get; set; }
+    [JsonProperty("allWheelDrive")] public bool AllWheelDrive { get; set; }
 }

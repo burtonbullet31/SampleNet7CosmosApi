@@ -1,8 +1,10 @@
-﻿namespace SampleNet7CosmosApi_Old.Models;
+﻿using Newtonsoft.Json;
+
+namespace SampleNet7CosmosApi.Models;
 
 public class PickupModel: BaseVehicleModel
 {
-    public ushort BedLengthInFeet { get; set; }
-    public bool FourWheelDrive { get; set; }
-    public ushort TowCapacityPounds { get; set; }
+    [JsonProperty("bedLengthInFeet")] public ushort BedLengthInFeet { get; set; }
+    [JsonProperty("fourWheelDrive")] public bool FourWheelDrive { get; set; }
+    [JsonProperty("towCapacityPounds")] public ushort TowCapacityPounds { get; set; }
 }

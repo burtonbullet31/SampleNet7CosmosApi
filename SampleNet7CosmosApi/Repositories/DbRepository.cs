@@ -1,39 +1,55 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.Azure.Cosmos;
-using SampleNet7CosmosApi_Old.Interfaces;
-using SampleNet7CosmosApi_Old.Models;
+using SampleNet7CosmosApi.Interfaces;
+using SampleNet7CosmosApi.Models;
 
-namespace SampleNet7CosmosApi_Old.Repositories;
+namespace SampleNet7CosmosApi.Repositories;
 
 public class CosmosDbRepository: IDbRepository
 {
-    private readonly Container _container;
+    private readonly Container _sedanContainer;
+    private readonly Container _pickupContainer;
+    private readonly Container _suvContainer;
 
-    public CosmosDbRepository(CosmosClient client, string dbName, string containerName) =>
-        _container = client.GetContainer(dbName, containerName);
+    public CosmosDbRepository(Container sedanContainer, Container pickupContainer, Container suvContainer)
+    {
+        _sedanContainer = sedanContainer;
+        _pickupContainer = pickupContainer;
+        _suvContainer = suvContainer;
+    }
 
     public async Task DeleteVehicle(string id) =>
-    await _container.DeleteItemAsync<BaseVehicleModel>(id, new PartitionKey());
+    await _sedanContainer.DeleteItemAsync<BaseVehicleModel>(id, new PartitionKey());
 
-    public async Task<BaseVehicleModel> GetVehicle(string id)
+    public async Task<TVehicleModel?> GetVehicle<TVehicleModel>(string id, string type)
     {
         try
         {
-            var response = await _container.ReadItemAsync<BaseVehicleModel>(id, new PartitionKey(id));
+            var response = type switch
+            {
+                "sedan" => await _sedanContainer.ReadItemAsync<TVehicleModel>(id, new PartitionKey(id)),
+                "pickup" => await _pickupContainer.ReadItemAsync<TVehicleModel>(id, new PartitionKey(id)),
+                "suv" => await _suvContainer.ReadItemAsync<TVehicleModel>(id, new PartitionKey(id)),
+                _ => throw new Exception("Invalid car type")
+            };
             return response.Resource;
         }
         catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            return null;
+            return default;
         }
     }
 
-    public async Task<IEnumerable<BaseVehicleModel>> GetVehicles()
+    public async Task<IEnumerable<TVehicleModel>> GetVehicles<TVehicleModel>(string type)
     {
-        var query = _container.GetItemQueryIterator<BaseVehicleModel>(new QueryDefinition("SELECT * FROM c"));
-        var results = new List<BaseVehicleModel>();
+        var query = type switch
+        {
+            "sedan" => _sedanContainer.GetItemQueryIterator<TVehicleModel>(new QueryDefinition("SELECT * FROM c")),
+            "pickup" => _pickupContainer.GetItemQueryIterator<TVehicleModel>(new QueryDefinition("SELECT * FROM c")),
+            "suv" => _suvContainer.GetItemQueryIterator<TVehicleModel>(new QueryDefinition("SELECT * FROM c")),
+            _ => throw new Exception("Invalid car type")
+        };
+        var results = new List<TVehicleModel>();
         while (query.HasMoreResults)
         {
             var response = await query.ReadNextAsync();
@@ -42,15 +58,27 @@ public class CosmosDbRepository: IDbRepository
         return results;
     }
 
-    public async Task<BaseVehicleModel> SaveVehicle(BaseVehicleModel vehicle)
+    public async Task<TVehicleModel> SaveVehicle<TVehicleModel>(TVehicleModel vehicle, string type)
     {
-        var response = await _container.CreateItemAsync(vehicle, new PartitionKey(vehicle.Id));
+        var response = type switch
+        {
+            "sedan" => await _sedanContainer.CreateItemAsync(vehicle, new PartitionKey((vehicle as BaseVehicleModel)?.Id)),
+            "pickup" => await _pickupContainer.CreateItemAsync(vehicle, new PartitionKey((vehicle as BaseVehicleModel)?.Id)),
+            "suv" => await _suvContainer.CreateItemAsync(vehicle, new PartitionKey((vehicle as BaseVehicleModel)?.Id)),
+            _ => throw new Exception("Invalid car type")
+        };
         return response.Resource;
     }
 
-    public async Task<BaseVehicleModel> UpdateVehicle(string id, BaseVehicleModel vehicle)
+    public async Task<TVehicleModel> UpdateVehicle<TVehicleModel>(string id, TVehicleModel vehicle, string type)
     {
-        var response = await _container.UpsertItemAsync(vehicle, new PartitionKey(id));
+        var response = type switch
+        {
+            "sedan" => await _sedanContainer.UpsertItemAsync(vehicle, new PartitionKey(id)),
+            "pickup" => await _pickupContainer.UpsertItemAsync(vehicle, new PartitionKey(id)),
+            "suv" => await _suvContainer.UpsertItemAsync(vehicle, new PartitionKey(id)),
+            _ => throw new Exception("Invalid car type")
+        };
         return response.Resource;
     }
 }
