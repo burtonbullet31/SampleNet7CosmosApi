@@ -2,7 +2,7 @@
   "profiles": {
     "SampleNet7CosmosApi": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7043",
+      "commandLineArgs": "--port 7282",
       "launchBrowser": false
     }
   }

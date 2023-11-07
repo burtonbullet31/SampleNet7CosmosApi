@@ -2,8 +2,9 @@
     "IsEncrypted": false,
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
         "CozzyEndpoint": "https://infermed-cossy.documents.azure.com:443/",
-        "CozzyKey": "VJNCEia4s8BwagJUHkaMXHPfebAKki09cu7jNMzCJVKyZ9REZVAOywYOVDujO7wOHTvXZeTJhCXNACDbZ3nB9A=="
+        "CozzyKey": "VJNCEia4s8BwagJUHkaMXHPfebAKki09cu7jNMzCJVKyZ9REZVAOywYOVDujO7wOHTvXZeTJhCXNACDbZ3nB9A==",
+        "CozzyContainerName": "CozzyDaDump"
     }
 }
